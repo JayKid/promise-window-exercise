@@ -24,4 +24,4 @@ const fetchSecretSync = async () => {
   console.log(secret.join(""));
 };
 
-// fetchSecretSync();
+fetchSecretSync();
