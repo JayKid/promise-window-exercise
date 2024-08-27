@@ -1,4 +1,3 @@
-// Sequential version
 const secretLength = 130;
 const serverUrlTemplate = "http://localhost:3000/secret/";
 

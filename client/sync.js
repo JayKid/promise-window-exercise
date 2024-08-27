@@ -1,4 +1,3 @@
-// Sequential version
 const secretLength = 130;
 const serverUrlTemplate = "http://localhost:3000/secret/";
 
@@ -8,7 +7,6 @@ const getCharacter = async (url) => {
   return responseContents;
 };
 
-// Sequential / sync version
 const fetchSecretSync = async () => {
   let secret = [];
 
