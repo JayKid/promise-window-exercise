@@ -23,7 +23,6 @@ class TaskProcessor {
 
   processTask = async (task) => {
     this.#ongoingTasks++;
-
     let character = "";
     while (character === "") {
       console.log("fetching character indexed", task.index);
@@ -32,9 +31,8 @@ class TaskProcessor {
     console.log(
       `found character ${character} for task indexed ${task.index} with url ${task.url}`
     );
-    secret[task.index] = character;
+    this.#secret[task.index] = character;
     this.#ongoingTasks--;
-    return;
   };
 
   getSecret = () => {
@@ -52,29 +50,32 @@ class Task {
 }
 
 const fetchSecretAsync = async () => {
-  let secret = [];
   const maxParallelTasks = 5;
   let taskQueue = [];
   const taskProcessor = new TaskProcessor(maxParallelTasks);
 
   // Fill task queue
-  for (let i = 1; i <= secretLength; ++i) {
-    const url = `${serverUrlTemplate}${i}`;
+  for (let i = 0; i < secretLength; ++i) {
+    const url = `${serverUrlTemplate}${i + 1}`;
     taskQueue.push(new Task(url, i));
   }
-  console.log({ taskQueue });
+  const taskPromises = [];
 
   while (taskQueue.length > 0) {
     if (taskProcessor.canProcessTask()) {
       console.log("processor has capacity");
-      const task = taskQueue.slice(0, 1);
-      taskQueue = taskQueue.slice(1);
-      taskProcessor.processTask(task[0]);
+      const task = taskQueue.shift(); // Get and remove the first task from the queue
+      const taskPromise = taskProcessor.processTask(task);
+      taskPromises.push(taskPromise);
     } else {
-      // console.log("processor busy");
+      // Wait briefly before checking again if there's capacity
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
   }
-  secret = taskProcessor.getSecret();
+
+  await Promise.all(taskPromises);
+
+  const secret = taskProcessor.getSecret();
 
   console.log("Secret found");
   console.log(secret.join(""));
